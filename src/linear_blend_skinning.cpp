@@ -7,8 +7,20 @@ void linear_blend_skinning(
   const Eigen::MatrixXd & W,
   Eigen::MatrixXd & U)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Replace with your code
-  U = V;
-  /////////////////////////////////////////////////////////////////////////////
+  U.resize(V.rows(), 3);
+
+  for(int i = 0; i < V.rows(); i++){
+    Eigen::RowVector3d rest_pose_pos = V.row(i);
+    Eigen::Vector3d bone_affected_pos = Eigen::Vector3d::Zero();
+    
+    for(int j = 0; j < skeleton.size(); j++){
+      Bone curr_bone = skeleton[j];
+      if (curr_bone.weight_index != -1){
+        // following the specfied equation
+        auto curr_bone_weight_on_vertex = W(i, curr_bone.weight_index);
+        bone_affected_pos +=  curr_bone_weight_on_vertex * (T[j] * rest_pose_pos.transpose()).transpose();
+      }
+    }
+    U.row(i) = bone_affected_pos;
+  }
 }
